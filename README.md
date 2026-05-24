@@ -9,10 +9,10 @@
 
 | Araç | Versiyon | İndirme |
 |------|----------|---------|
-| Java JDK | 17+ | [oracle.com/java](https://www.oracle.com/java/technologies/downloads/) |
+| Java JDK | 23.0.2 | [oracle.com/java](https://www.oracle.com/java/technologies/downloads/) |
 | Apache Maven | 3.8+ | [maven.apache.org](https://maven.apache.org/download.cgi) |
 
-> JavaFX ayrıca kurulmasına gerek yok — Maven otomatik indirir.
+> JavaFX ayrıca kurulmasına gerek yok — Maven otomatik indirir (JavaFX 17.0.6).
 
 ---
 
