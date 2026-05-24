@@ -1,90 +1,151 @@
 package com.supurge.view;
 
 import com.supurge.model.SimulasyonDurumu;
+import com.supurge.model.Yon;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.scene.control.*;
-import javafx.scene.layout.VBox;
+import javafx.scene.layout.*;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 
 /**
- * Robot durumunu gösteren bilgi paneli (sağ/sol panel).
+ * Sağ bilgi paneli - robot durumu, batarya, istatistikler.
  */
 public class BilgiPaneli extends VBox {
 
-    private Label konumEtiketi;
-    private Label yonEtiketi;
-    private Label bataryaEtiketi;
+    private Label konumDeger;
+    private Label yonDeger;
+    private Label bataryaDeger;
     private ProgressBar bataryaCubugu;
-    private Label temizlenenEtiketi;
-    private Label kalanEtiketi;
-    private Label sureEtiketi;
-    private Label kirSayisiEtiketi;
+    private Label bataryaDurumDeger;
+    private Label temizlenenDeger;
+    private Label kalanDeger;
+    private Label kirSayisiDeger;
+    private Label sureDeger;
 
     public BilgiPaneli() {
-        setPadding(new Insets(10));
+        setPadding(new Insets(12));
         setSpacing(8);
-        setStyle("-fx-background-color: #2b2b2b; -fx-text-fill: white;");
-
-        Label baslik = new Label("🤖 Robot Durumu");
-        baslik.setStyle("-fx-font-weight: bold; -fx-font-size: 14; -fx-text-fill: white;");
-
-        konumEtiketi = etiketOlustur("Konum: (0, 0)");
-        yonEtiketi = etiketOlustur("Yön: Doğu");
-        bataryaEtiketi = etiketOlustur("Batarya: 100%");
-        bataryaCubugu = new ProgressBar(1.0);
-        bataryaCubugu.setPrefWidth(180);
-        bataryaCubugu.setStyle("-fx-accent: #4caf50;");
-
-        temizlenenEtiketi = etiketOlustur("Temizlenen: 0%");
-        kalanEtiketi = etiketOlustur("Kalan Kir: 0");
-        kirSayisiEtiketi = etiketOlustur("Toplam Temizlenen Kir: 0");
-        sureEtiketi = etiketOlustur("Süre: 00:00");
+        setPrefWidth(200);
+        setStyle("-fx-background-color: #1e2235;");
 
         getChildren().addAll(
-                baslik, new Separator(),
-                konumEtiketi, yonEtiketi,
-                bataryaEtiketi, bataryaCubugu,
-                new Separator(),
-                temizlenenEtiketi, kalanEtiketi, kirSayisiEtiketi, sureEtiketi
+            bolumBasligi("🤖 Robot Durumu"),
+            ayrac(),
+            satirOlustur("Konum (x, y)", konumDeger    = degerEtiketi("(0, 0)")),
+            satirOlustur("Yön",          yonDeger      = degerEtiketi("Doğu →")),
+            bataryaBolumu(),
+            ayrac(),
+            bolumBasligi("📊 İstatistikler"),
+            ayrac(),
+            satirOlustur("Temizlenen",   temizlenenDeger = degerEtiketi("0%")),
+            satirOlustur("Kalan Kir",    kalanDeger      = degerEtiketi("0")),
+            satirOlustur("Toplam Kir",   kirSayisiDeger  = degerEtiketi("0")),
+            satirOlustur("Süre",         sureDeger       = degerEtiketi("00:00"))
         );
     }
 
-    /** Simülasyon durumuna göre paneli günceller */
     public void guncelle(SimulasyonDurumu durum) {
-        konumEtiketi.setText(String.format("Konum: (%d, %d)", durum.getRobotX(), durum.getRobotY()));
-        yonEtiketi.setText("Yön: " + yonTurkce(durum.getYon()));
-        bataryaEtiketi.setText(String.format("Batarya: %.0f%%", durum.getBataryaYuzdesi()));
-        bataryaCubugu.setProgress(durum.getBataryaYuzdesi() / 100.0);
+        if (durum == null) return;
 
-        // Batarya rengini güncelle
-        if (durum.getBataryaYuzdesi() <= 20) {
-            bataryaCubugu.setStyle("-fx-accent: #f44336;");
-        } else if (durum.getBataryaYuzdesi() <= 50) {
-            bataryaCubugu.setStyle("-fx-accent: #ff9800;");
+        konumDeger.setText(String.format("(%d, %d)", durum.getRobotX(), durum.getRobotY()));
+        yonDeger.setText(yonMetni(durum.getYon()));
+
+        double bat = durum.getBataryaYuzdesi();
+        bataryaDeger.setText(String.format("%.0f%%", bat));
+        bataryaCubugu.setProgress(bat / 100.0);
+
+        if (bat <= 10) {
+            bataryaCubugu.setStyle("-fx-accent: #e74c3c;");
+            bataryaDurumDeger.setText("KRİTİK");
+            bataryaDurumDeger.setTextFill(Color.rgb(231, 76, 60));
+        } else if (bat <= 20) {
+            bataryaCubugu.setStyle("-fx-accent: #e67e22;");
+            bataryaDurumDeger.setText("DÜŞÜK");
+            bataryaDurumDeger.setTextFill(Color.rgb(230, 126, 34));
+        } else if (bat <= 50) {
+            bataryaCubugu.setStyle("-fx-accent: #f1c40f;");
+            bataryaDurumDeger.setText("ORTA");
+            bataryaDurumDeger.setTextFill(Color.rgb(241, 196, 15));
         } else {
-            bataryaCubugu.setStyle("-fx-accent: #4caf50;");
+            bataryaCubugu.setStyle("-fx-accent: #2ecc71;");
+            bataryaDurumDeger.setText("İYİ");
+            bataryaDurumDeger.setTextFill(Color.rgb(46, 204, 113));
         }
 
-        temizlenenEtiketi.setText(String.format("Temizlenen: %.0f%%", durum.temizlenenYuzde()));
-        kalanEtiketi.setText("Kalan Kir: " + durum.getKalanKirliHucre());
-        kirSayisiEtiketi.setText("Toplam Temizlenen Kir: " + durum.getToplamTemizlenenKir());
+        temizlenenDeger.setText(String.format("%.0f%%", durum.temizlenenYuzde()));
+        kalanDeger.setText(String.valueOf(durum.getKalanKirliHucre()));
+        kirSayisiDeger.setText(String.valueOf(durum.getToplamTemizlenenKir()));
 
         long sure = durum.getGecenSure();
-        sureEtiketi.setText(String.format("Süre: %02d:%02d", sure / 60, sure % 60));
+        sureDeger.setText(String.format("%02d:%02d", sure / 60, sure % 60));
     }
 
-    private Label etiketOlustur(String metin) {
+    // ---- Yardımcılar ----
+
+    private VBox bataryaBolumu() {
+        bataryaDeger = degerEtiketi("100%");
+        bataryaDurumDeger = new Label("İYİ");
+        bataryaDurumDeger.setFont(Font.font("Arial", FontWeight.BOLD, 10));
+        bataryaDurumDeger.setTextFill(Color.rgb(46, 204, 113));
+
+        HBox satir = new HBox(6);
+        satir.setAlignment(Pos.CENTER_LEFT);
+        Label etiket = new Label("Batarya");
+        etiket.setFont(Font.font("Arial", 11));
+        etiket.setTextFill(Color.rgb(140, 150, 170));
+        etiket.setMinWidth(70);
+        satir.getChildren().addAll(etiket, bataryaDeger, bataryaDurumDeger);
+
+        bataryaCubugu = new ProgressBar(1.0);
+        bataryaCubugu.setMaxWidth(Double.MAX_VALUE);
+        bataryaCubugu.setPrefHeight(8);
+        bataryaCubugu.setStyle("-fx-accent: #2ecc71; -fx-background-color: #2a2f45;");
+
+        VBox kutu = new VBox(4, satir, bataryaCubugu);
+        return kutu;
+    }
+
+    private HBox satirOlustur(String etiketMetin, Label degerLabel) {
+        Label etiket = new Label(etiketMetin);
+        etiket.setFont(Font.font("Arial", 11));
+        etiket.setTextFill(Color.rgb(140, 150, 170));
+        etiket.setMinWidth(80);
+
+        HBox satir = new HBox(6, etiket, degerLabel);
+        satir.setAlignment(Pos.CENTER_LEFT);
+        return satir;
+    }
+
+    private Label degerEtiketi(String metin) {
         Label l = new Label(metin);
-        l.setStyle("-fx-text-fill: #cccccc;");
+        l.setFont(Font.font("Arial", FontWeight.BOLD, 11));
+        l.setTextFill(Color.WHITE);
         return l;
     }
 
-    private String yonTurkce(com.supurge.model.Yon yon) {
+    private Label bolumBasligi(String metin) {
+        Label l = new Label(metin);
+        l.setFont(Font.font("Arial", FontWeight.BOLD, 13));
+        l.setTextFill(Color.WHITE);
+        return l;
+    }
+
+    private Separator ayrac() {
+        Separator s = new Separator();
+        s.setStyle("-fx-background-color: #2a2f45;");
+        return s;
+    }
+
+    private String yonMetni(Yon yon) {
         if (yon == null) return "-";
         return switch (yon) {
             case KUZEY -> "Kuzey ↑";
             case GUNEY -> "Güney ↓";
-            case DOGU -> "Doğu →";
-            case BATI -> "Batı ←";
+            case DOGU  -> "Doğu →";
+            case BATI  -> "Batı ←";
         };
     }
 }
