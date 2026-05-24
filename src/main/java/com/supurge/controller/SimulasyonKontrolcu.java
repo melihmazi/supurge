@@ -89,7 +89,7 @@ public class SimulasyonKontrolcu {
     public void adimAt() {
         if (!robot.isCalisiyor()) return;
 
-        // 1. Şarj istasyonuna dönüş modu (kritik kontrolden ÖNCE — istasyona ulaşabilsin)
+        // 1. Şarj istasyonuna dönüş modu — temizleme yapmadan direkt git
         if (sarjaDonuyorMu || bataryaKontrolcu.donmesiGerekiyorMu()) {
             sarjaDonuyorMu = true;
             sarjIstasyonunaAdimAt();
@@ -168,7 +168,6 @@ public class SimulasyonKontrolcu {
         if (yol != null && yol.size() > 1) {
             int[] sonrakiAdim = yol.get(1);
             robot.hareketEt(sonrakiAdim[0], sonrakiAdim[1]);
-            // Şarj dönüşünde de batarya tüket
             bataryaKontrolcu.hareketTuketimUygula();
         }
     }

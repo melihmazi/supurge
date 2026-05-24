@@ -73,7 +73,6 @@ public class HareketKontrolcu {
         // 2. Aktif A* yolu varsa devam et
         if (aktifYol != null && aktifYolAdimi < aktifYol.size()) {
             int[] hedef = aktifYol.get(aktifYolAdimi);
-            // Zaten bu konumdaysak bir sonraki adıma geç
             if (hedef[0] == robot.getX() && hedef[1] == robot.getY()) {
                 aktifYolAdimi++;
                 if (aktifYolAdimi >= aktifYol.size()) {
@@ -82,32 +81,57 @@ public class HareketKontrolcu {
                 }
                 hedef = aktifYol.get(aktifYolAdimi);
             }
-            // Bir sonraki adıma git (adimi burada artır, git() çağrısından önce)
             int dx = hedef[0] - robot.getX();
             int dy = hedef[1] - robot.getY();
             Yon yon = yonBul(dx, dy);
             if (yon != null && !oda.engelMi(hedef[0], hedef[1])) {
-                aktifYolAdimi++; // önce artır, sonra git
+                aktifYolAdimi++;
                 return git(yon);
             } else {
-                // Yol geçersiz oldu (yeni engel), yeniden hesapla
                 aktifYol = null;
             }
         }
 
-        // 3. Algoritmaya göre hareket
-        boolean hareket = switch (robot.getAlgoritma()) {
-            case RASTGELE    -> rastgeleHareketEt();
-            case SPIRAL      -> spiralHareketEt();
-            case DUVAR_TAKIP -> duvarTakipHareketEt();
-        };
+        // 3. Ziyaret edilmemiş veya kirli hücre varsa A* ile git
+        //    (spiral/duvar takip kör çalışmasın)
+        Hucre hedefHucre = enYakinTemizlenmemisHucre();
+        if (hedefHucre == null) {
+            // Tüm alan ziyaret edildi ve kirli hücre yok → dur
+            robot.setCalisiyor(false);
+            return false;
+        }
 
-        // 4. Hareket edemediyse → en yakın temizlenmemiş hücreye A* ile git
-        if (!hareket) {
+        // Hedef komşumuzda değilse A* ile git
+        boolean hedefKomsu = Math.abs(hedefHucre.getX() - robot.getX())
+                           + Math.abs(hedefHucre.getY() - robot.getY()) == 1;
+
+        if (!hedefKomsu) {
+            // Algoritmaya göre hareket dene — eğer ziyaret edilmemiş yöne gidiyorsa kullan
+            boolean hareket = switch (robot.getAlgoritma()) {
+                case RASTGELE    -> rastgeleHareketEt();
+                case SPIRAL      -> spiralHareketEt();
+                case DUVAR_TAKIP -> duvarTakipHareketEt();
+            };
+
+            // Hareket ettik ama ziyaret edilmiş hücreye gittik → A* daha iyi
+            if (hareket) {
+                Hucre mevcutHucre = oda.getHucre(robot.getX(), robot.getY());
+                // Ziyaret edilmemiş hücreye gittik → iyi
+                if (mevcutHucre != null && (!mevcutHucre.isZiyaretEdildi() || mevcutHucre.isKirli())) {
+                    return true;
+                }
+                // Ziyaret edilmiş hücreye gittik → A* ile devam et
+                return enYakinTemizlenmemiseGit();
+            }
             return enYakinTemizlenmemiseGit();
         }
 
-        return hareket;
+        // Hedef komşumuzda → direkt git
+        int dx = hedefHucre.getX() - robot.getX();
+        int dy = hedefHucre.getY() - robot.getY();
+        Yon yon = yonBul(dx, dy);
+        if (yon != null) return git(yon);
+        return false;
     }
 
     // =========================================================
