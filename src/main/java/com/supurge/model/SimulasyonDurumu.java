@@ -19,6 +19,8 @@ public class SimulasyonDurumu {
     private double robotHiz;          // AnaEkran'ın hız hesabı için
     private boolean sarjaDonuyorMu;   // UI'da uyarı göstermek için
     private String bataryaDurumu;     // "İYİ" / "ORTA" / "DÜŞÜK" / "KRİTİK"
+    private boolean calisiyor;        // robot çalışıyor mu
+    private boolean tamamlandi;       // tüm alan temizlendi mi
 
     public SimulasyonDurumu() {}
 
@@ -63,4 +65,10 @@ public class SimulasyonDurumu {
 
     public String getBataryaDurumu() { return bataryaDurumu; }
     public void setBataryaDurumu(String bataryaDurumu) { this.bataryaDurumu = bataryaDurumu; }
+
+    public boolean isCalisiyor() { return calisiyor; }
+    public void setCalisiyor(boolean calisiyor) { this.calisiyor = calisiyor; }
+
+    public boolean isTamamlandi() { return tamamlandi; }
+    public void setTamamlandi(boolean tamamlandi) { this.tamamlandi = tamamlandi; }
 }

@@ -24,6 +24,7 @@ public class BilgiPaneli extends VBox {
     private Label kalanDeger;
     private Label kirSayisiDeger;
     private Label sureDeger;
+    private Label robotDurumDeger;  // Çalışıyor / Duraklatıldı / Şarj Dönüşü / Tamamlandı
 
     public BilgiPaneli() {
         setPadding(new Insets(12));
@@ -34,6 +35,7 @@ public class BilgiPaneli extends VBox {
         getChildren().addAll(
             bolumBasligi("🤖 Robot Durumu"),
             ayrac(),
+            satirOlustur("Durum",        robotDurumDeger = durumEtiketi("Bekliyor")),
             satirOlustur("Konum (x, y)", konumDeger    = degerEtiketi("(0, 0)")),
             satirOlustur("Yön",          yonDeger      = degerEtiketi("Doğu →")),
             bataryaBolumu(),
@@ -52,6 +54,21 @@ public class BilgiPaneli extends VBox {
 
         konumDeger.setText(String.format("(%d, %d)", durum.getRobotX(), durum.getRobotY()));
         yonDeger.setText(yonMetni(durum.getYon()));
+
+        // Robot durum etiketi
+        if (durum.isTamamlandi()) {
+            robotDurumDeger.setText("✅ Tamamlandı");
+            robotDurumDeger.setTextFill(Color.rgb(46, 204, 113));
+        } else if (durum.isSarjaDonuyorMu()) {
+            robotDurumDeger.setText("🔋 Şarj Dönüşü");
+            robotDurumDeger.setTextFill(Color.rgb(230, 126, 34));
+        } else if (durum.isCalisiyor()) {
+            robotDurumDeger.setText("▶ Çalışıyor");
+            robotDurumDeger.setTextFill(Color.rgb(46, 204, 113));
+        } else {
+            robotDurumDeger.setText("⏸ Bekliyor");
+            robotDurumDeger.setTextFill(Color.rgb(140, 150, 170));
+        }
 
         double bat = durum.getBataryaYuzdesi();
         bataryaDeger.setText(String.format("%.0f%%", bat));
@@ -117,6 +134,13 @@ public class BilgiPaneli extends VBox {
         HBox satir = new HBox(6, etiket, degerLabel);
         satir.setAlignment(Pos.CENTER_LEFT);
         return satir;
+    }
+
+    private Label durumEtiketi(String metin) {
+        Label l = new Label(metin);
+        l.setFont(Font.font("Arial", FontWeight.BOLD, 11));
+        l.setTextFill(Color.rgb(140, 150, 170));
+        return l;
     }
 
     private Label degerEtiketi(String metin) {

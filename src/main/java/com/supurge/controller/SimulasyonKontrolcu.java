@@ -23,6 +23,7 @@ public class SimulasyonKontrolcu {
 
     private long baslangicZamani = 0;
     private boolean sarjaDonuyorMu = false;
+    private boolean manuelSarjDonusu = false; // kullanıcı butona bastıysa true
 
     public SimulasyonKontrolcu(int odaGenislik, int odaYukseklik) {
         this.oda = new Oda(odaGenislik, odaYukseklik);
@@ -70,6 +71,7 @@ public class SimulasyonKontrolcu {
         robot.yoluTemizle();
         baslangicZamani = 0;
         sarjaDonuyorMu = false;
+        manuelSarjDonusu = false;
         // Alt controller'ları sıfırla (robot referansı aynı kaldığı için yeniden oluşturmaya gerek yok)
         hareketKontrolcu.sifirla();
         temizlemeKontrolcu.sifirla();
@@ -82,22 +84,22 @@ public class SimulasyonKontrolcu {
 
     /**
      * Her simülasyon tick'inde çağrılır.
-     * Öncelik sırası: Batarya kontrolü → Şarj dönüşü → Temizleme → Hareket
+     * Öncelik sırası: Şarj dönüşü → Batarya kritik → Temizleme → Hareket
      */
     public void adimAt() {
         if (!robot.isCalisiyor()) return;
 
-        // 1. Batarya bitti mi?
-        if (bataryaKontrolcu.kritikMi()) {
-            robot.setCalisiyor(false);
+        // 1. Şarj istasyonuna dönüş modu (kritik kontrolden ÖNCE — istasyona ulaşabilsin)
+        if (sarjaDonuyorMu || bataryaKontrolcu.donmesiGerekiyorMu()) {
+            sarjaDonuyorMu = true;
+            sarjIstasyonunaAdimAt();
             durumGuncelle();
             return;
         }
 
-        // 2. Şarj istasyonuna dönüş modu
-        if (sarjaDonuyorMu || bataryaKontrolcu.donmesiGerekiyorMu()) {
-            sarjaDonuyorMu = true;
-            sarjIstasyonunaAdimAt();
+        // 2. Batarya kritik ve istasyona dönemiyorsa dur
+        if (bataryaKontrolcu.kritikMi()) {
+            robot.setCalisiyor(false);
             durumGuncelle();
             return;
         }
@@ -110,6 +112,11 @@ public class SimulasyonKontrolcu {
             hareketKontrolcu.hareketEt();
         }
 
+        // 5. Hareket yolu çok uzadıysa kırp (bellek tasarrufu)
+        if (robot.getHareketYolu().size() > 500) {
+            robot.getHareketYolu().subList(0, 250).clear();
+        }
+
         durumGuncelle();
     }
 
@@ -118,28 +125,38 @@ public class SimulasyonKontrolcu {
     // =========================================================
 
     /**
-     * Kullanıcı isteğiyle veya düşük batarya durumunda şarj istasyonuna döner.
-     * A* algoritması kullanır.
+     * Kullanıcı isteğiyle şarj istasyonuna döner.
+     * İstasyona ulaşınca şarj olur ve BEKLER — otomatik devam etmez.
      */
     public void sarjIstasyonunaDon() {
         sarjaDonuyorMu = true;
-        sarjIstasyonunaAdimAt();
+        manuelSarjDonusu = true;
+        robot.setCalisiyor(true);
+        if (baslangicZamani == 0) baslangicZamani = System.currentTimeMillis();
         durumGuncelle();
     }
 
     /**
      * A* ile şarj istasyonuna bir adım atar.
-     * Ulaşınca şarj eder ve normal moda döner.
+     * Ulaşınca şarj eder ve otomatik olarak simülasyona devam eder.
      */
     private void sarjIstasyonunaAdimAt() {
         int hedefX = oda.getSarjIstasyonuX();
         int hedefY = oda.getSarjIstasyonuY();
 
-        // Zaten istasyondaysa şarj et
+        // Zaten istasyondaysa şarj et ve bekle
         if (robot.getX() == hedefX && robot.getY() == hedefY) {
             bataryaKontrolcu.sarjEt();
             sarjaDonuyorMu = false;
             temizlemeKontrolcu.sayaciSifirla();
+            hareketKontrolcu.sifirla();
+            // Kullanıcı manuel "İstasyona Dön" dediyse bekle, otomatik dönüşse devam et
+            if (!manuelSarjDonusu) {
+                robot.setCalisiyor(true);
+            } else {
+                robot.setCalisiyor(false);
+                manuelSarjDonusu = false;
+            }
             return;
         }
 
@@ -151,6 +168,8 @@ public class SimulasyonKontrolcu {
         if (yol != null && yol.size() > 1) {
             int[] sonrakiAdim = yol.get(1);
             robot.hareketEt(sonrakiAdim[0], sonrakiAdim[1]);
+            // Şarj dönüşünde de batarya tüket
+            bataryaKontrolcu.hareketTuketimUygula();
         }
     }
 
@@ -165,8 +184,8 @@ public class SimulasyonKontrolcu {
     }
 
     /** Belirtilen hücreye engel (mobilya) ekler. */
-    public void engelEkle(int x, int y) {
-        oda.engelEkle(x, y);
+    public void engelEkle(int x, int y, int mobilyaTuru) {
+        oda.engelEkle(x, y, mobilyaTuru);
     }
 
     /** Robot hızını ayarlar (0.5x - 3.0x). */
@@ -205,6 +224,12 @@ public class SimulasyonKontrolcu {
         durum.setRobotHiz(robot.getHiz());
         durum.setSarjaDonuyorMu(sarjaDonuyorMu);
         durum.setBataryaDurumu(bataryaKontrolcu.bataryaDurumMetni());
+        durum.setCalisiyor(robot.isCalisiyor());
+        // Tamamlandı: çalışmıyor VE ulaşılabilir kirli/ziyaret edilmemiş hücre yok
+        boolean tumTemiz = !robot.isCalisiyor()
+                && oda.kirliHucreleriGetir().isEmpty()
+                && oda.temizlenenHucreSayisi() > 0;
+        durum.setTamamlandi(tumTemiz);
         if (baslangicZamani > 0)
             durum.setGecenSure((System.currentTimeMillis() - baslangicZamani) / 1000);
     }

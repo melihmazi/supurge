@@ -19,8 +19,10 @@ public class KontrolPaneli extends VBox {
     private final SimulasyonKontrolcu kontrolcu;
     private ToggleGroup kirTuruGrubu;
     private ToggleGroup algoritmaGrubu;
+    private ToggleGroup mobilyaTuruGrubu;
     private boolean kirEkleModu   = false;
     private boolean engelEkleModu = false;
+    private int seciliMobilyaTuru = 0;
 
     public KontrolPaneli(SimulasyonKontrolcu kontrolcu) {
         this.kontrolcu = kontrolcu;
@@ -101,7 +103,35 @@ public class KontrolPaneli extends VBox {
                 ? "-fx-background-color: #3aaa6a; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 12;"
                 : "-fx-background-color: #2a7a4a; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 12;");
         });
-        return bolum(engelBtn);
+
+        mobilyaTuruGrubu = new ToggleGroup();
+        ToggleButton koltuk   = mobilyaToggle("🛋 Koltuk",   0);
+        ToggleButton sehpa    = mobilyaToggle("🪑 Sehpa",    1);
+        ToggleButton masa     = mobilyaToggle("🪑 Masa",     2);
+        ToggleButton saksi    = mobilyaToggle("🪴 Saksı",    3);
+        ToggleButton kitaplik = mobilyaToggle("📚 Kitaplık", 4);
+        ToggleButton sandalye = mobilyaToggle("🪑 Sandalye", 5);
+        koltuk.setSelected(true);
+
+        HBox satir1 = new HBox(3, koltuk, sehpa, masa);
+        HBox satir2 = new HBox(3, saksi, kitaplik, sandalye);
+
+        return bolum(kucukEtiket("Mobilya Türü"), engelBtn, satir1, satir2);
+    }
+
+    private ToggleButton mobilyaToggle(String metin, int tur) {
+        ToggleButton tb = new ToggleButton(metin);
+        tb.setToggleGroup(mobilyaTuruGrubu);
+        tb.setUserData(tur);
+        tb.setFont(Font.font("Arial", 9));
+        tb.setStyle("-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc; -fx-background-radius: 4; -fx-padding: 2 4;");
+        tb.selectedProperty().addListener((obs, o, n) -> {
+            tb.setStyle(n
+                ? "-fx-background-color: #2a7a4a; -fx-text-fill: white; -fx-background-radius: 4; -fx-padding: 2 4;"
+                : "-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc; -fx-background-radius: 4; -fx-padding: 2 4;");
+            if (n) seciliMobilyaTuru = (int) tb.getUserData();
+        });
+        return tb;
     }
 
     // ---- Hız ----
@@ -207,5 +237,9 @@ public class KontrolPaneli extends VBox {
     public KirTuru getSeciliKirTuru() {
         Toggle t = kirTuruGrubu.getSelectedToggle();
         return t != null ? (KirTuru) t.getUserData() : KirTuru.TOZ;
+    }
+
+    public int getSeciliMobilyaTuru() {
+        return seciliMobilyaTuru;
     }
 }

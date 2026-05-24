@@ -47,14 +47,18 @@ public class Oda {
         return grid[y][x].isEngel();
     }
 
-    public void engelEkle(int x, int y) {
-        if (gecerliMi(x, y)) grid[y][x].setEngel(true);
+    public void engelEkle(int x, int y, int mobilyaTuru) {
+        if (gecerliMi(x, y)) {
+            grid[y][x].setEngel(true);
+            grid[y][x].setMobilyaTuru(mobilyaTuru);
+        }
     }
 
     public void kirEkle(int x, int y, KirTuru kirTuru) {
         if (gecerliMi(x, y) && !grid[y][x].isEngel()) {
             grid[y][x].setKirTuru(kirTuru);
             grid[y][x].setTemizlendi(false);
+            grid[y][x].setZiyaretEdildi(false); // kir eklenen hücre tekrar ziyaret edilmeli
         }
     }
 
@@ -70,7 +74,7 @@ public class Oda {
         int sayac = 0;
         for (int y = 0; y < yukseklik; y++)
             for (int x = 0; x < genislik; x++)
-                if (grid[y][x].isTemizlendi()) sayac++;
+                if (grid[y][x].isZiyaretEdildi() && !grid[y][x].isKirli()) sayac++;
         return sayac;
     }
 

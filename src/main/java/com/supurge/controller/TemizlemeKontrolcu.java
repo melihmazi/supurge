@@ -4,90 +4,81 @@ import com.supurge.model.*;
 
 /**
  * Temizleme işlemlerini yöneten controller.
- * Kir türüne göre farklı temizleme süresi ve batarya tüketimi uygular.
  */
 public class TemizlemeKontrolcu {
 
     private final Oda oda;
     private final Robot robot;
 
-    // Mevcut hücredeki temizleme ilerleme sayacı
-    private int temizlemeAdimi = 0;
-    // Toplam temizlenen kir sayısı (istatistik)
+    private int temizlemeAdimi      = 0;
     private int toplamTemizlenenKir = 0;
 
+    // Önceki hücre takibi — robot hareket edince sayacı sıfırla
+    private int oncekiX = -1;
+    private int oncekiY = -1;
+
     public TemizlemeKontrolcu(Oda oda, Robot robot) {
-        this.oda = oda;
+        this.oda   = oda;
         this.robot = robot;
     }
 
     /**
-     * Robotun bulunduğu hücreyi temizlemeye çalışır.
-     * @return hücre kirli ve temizleme devam ediyorsa true,
-     *         hücre zaten temizse false (hareket edebilir)
+     * Robotun bulunduğu hücreyi temizler.
+     * Robot yeni bir hücreye geçtiyse sayaç otomatik sıfırlanır.
+     *
+     * @return true → hâlâ temizleniyor (hareket etme)
+     *         false → temiz, hareket edebilir
      */
     public boolean temizle() {
-        Hucre hucre = oda.getHucre(robot.getX(), robot.getY());
+        int cx = robot.getX();
+        int cy = robot.getY();
+
+        // Robot yeni hücreye geçtiyse sayacı sıfırla
+        if (cx != oncekiX || cy != oncekiY) {
+            temizlemeAdimi = 0;
+            oncekiX = cx;
+            oncekiY = cy;
+        }
+
+        Hucre hucre = oda.getHucre(cx, cy);
         if (hucre == null) return false;
 
         if (hucre.isKirli()) {
             temizlemeAdimi++;
-            // Kir türüne göre ek batarya tüket
-            double ekTuketim = hucre.getKirTuru().getBataryaTuketimi() * 0.1;
-            robot.bataryaAzalt(ekTuketim);
+            robot.bataryaAzalt(hucre.getKirTuru().getBataryaTuketimi() * 0.1);
 
-            // Temizleme tamamlandı mı?
             if (temizlemeAdimi >= hucre.getKirTuru().getTemizlemeSuresi()) {
-                hucreTemizle(hucre);
-                return false; // temizlendi, artık hareket edebilir
+                hucre.setKirTuru(null);
+                hucre.setTemizlendi(true);   // kir temizlendi
+                hucre.setZiyaretEdildi(true);
+                temizlemeAdimi = 0;
+                toplamTemizlenenKir++;
+                return false;
             }
-            return true; // hâlâ temizleniyor, bekle
+            return true; // hâlâ temizleniyor
         }
 
-        // Kirli değil ama ziyaret edilmemiş
-        if (!hucre.isTemizlendi()) {
-            hucre.setTemizlendi(true);
-        }
-        temizlemeAdimi = 0;
+        // Kirli değil — sadece ziyaret edildi olarak işaretle (temizlendi DEĞİL)
+        hucre.setZiyaretEdildi(true);
         return false;
     }
 
-    /**
-     * Belirli bir hücreye kir ekler.
-     */
     public void kirEkle(int x, int y, KirTuru kirTuru) {
         oda.kirEkle(x, y, kirTuru);
     }
-
-    /**
-     * Temizleme sayacını sıfırlar (robot yeni hücreye geçtiğinde).
-     */
     public void sayaciSifirla() {
         temizlemeAdimi = 0;
+        oncekiX = -1;
+        oncekiY = -1;
     }
 
-    /**
-     * Tüm temizleme durumunu sıfırlar.
-     */
     public void sifirla() {
-        temizlemeAdimi = 0;
+        temizlemeAdimi      = 0;
         toplamTemizlenenKir = 0;
+        oncekiX = -1;
+        oncekiY = -1;
     }
 
-    public int getToplamTemizlenenKir() {
-        return toplamTemizlenenKir;
-    }
-
-    public int getTemizlemeAdimi() {
-        return temizlemeAdimi;
-    }
-
-    // ---- Özel Metodlar ----
-
-    private void hucreTemizle(Hucre hucre) {
-        hucre.setKirTuru(null);
-        hucre.setTemizlendi(true);
-        temizlemeAdimi = 0;
-        toplamTemizlenenKir++;
-    }
+    public int getToplamTemizlenenKir() { return toplamTemizlenenKir; }
+    public int getTemizlemeAdimi()      { return temizlemeAdimi; }
 }

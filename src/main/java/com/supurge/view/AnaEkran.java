@@ -28,6 +28,7 @@ public class AnaEkran {
     private BilgiPaneli bilgiPaneli;
     private IstatistikBari istatistikBari;
     private long sonAdimZamani = 0;
+    private boolean tamamlandiGosterildi = false; // tamamlanma bildirimi bir kez göster
 
     public void baslat(Stage sahne) {
         kontrolcu = new SimulasyonKontrolcu(ODA_GENISLIK, ODA_YUKSEKLIK);
@@ -51,14 +52,13 @@ public class AnaEkran {
             if (kontrolPaneli.isKirEkleModu()) {
                 kontrolcu.kirEkle(x, y, kontrolPaneli.getSeciliKirTuru());
             } else if (kontrolPaneli.isEngelEkleModu()) {
-                kontrolcu.engelEkle(x, y);
+                kontrolcu.engelEkle(x, y, kontrolPaneli.getSeciliMobilyaTuru());
             }
             odaGorunumu.guncelle(kontrolcu.getDurum());
         });
 
         // Başlık barı
-        HBox baslikBari = baslikBariOlustur();
-
+        final HBox baslikBari = baslikBariOlustur();
         // Orta alan: sol panel + canvas + sağ panel
         HBox ortaAlan = new HBox(0);
         ortaAlan.getChildren().addAll(kontrolPaneli, odaGorunumu, bilgiPaneli);
@@ -81,6 +81,23 @@ public class AnaEkran {
                     odaGorunumu.guncelle(kontrolcu.getDurum());
                     bilgiPaneli.guncelle(kontrolcu.getDurum());
                     istatistikBari.guncelle(kontrolcu.getDurum());
+
+                    // Tamamlanma bildirimi (bir kez)
+                    if (kontrolcu.getDurum().isTamamlandi() && !tamamlandiGosterildi) {
+                        tamamlandiGosterildi = true;
+                        baslikBariTamamlandiGoster(baslikBari);
+                    }
+                    // Sıfırlandıysa bildirimi temizle
+                    if (!kontrolcu.getDurum().isTamamlandi() && !kontrolcu.getDurum().isCalisiyor()) {
+                        if (tamamlandiGosterildi) {
+                            tamamlandiGosterildi = false;
+                            // 4. eleman varsa kaldır (tamamlandı etiketi)
+                            if (baslikBari.getChildren().size() >= 4) {
+                                baslikBari.getChildren().remove(3);
+                            }
+                        }
+                    }
+
                     sonAdimZamani = now;
                 }
             }
@@ -99,20 +116,28 @@ public class AnaEkran {
         bar.setPadding(new Insets(10, 20, 10, 20));
         bar.setStyle("-fx-background-color: #12152a;");
 
-        // Robot ikonu
-        Label ikon = new Label("🤖");
+        Label ikon   = new Label("🤖");
         ikon.setFont(Font.font(24));
 
-        // Başlık
         Label baslik = new Label("Robot Süpürge Simülasyonu");
         baslik.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         baslik.setTextFill(Color.WHITE);
 
-        // Yıldız
         Label yildiz = new Label("✨");
         yildiz.setFont(Font.font(18));
 
         bar.getChildren().addAll(ikon, baslik, yildiz);
         return bar;
+    }
+
+    /** Tamamlanma durumunda başlık barına yeşil bildirim ekler. */
+    private void baslikBariTamamlandiGoster(HBox bar) {
+        Label tamamlandi = new Label("  ✅ Temizlik Tamamlandı!");
+        tamamlandi.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+        tamamlandi.setTextFill(Color.rgb(46, 204, 113));
+        tamamlandi.setStyle("-fx-background-color: #1a3a2a; -fx-background-radius: 6; -fx-padding: 4 10;");
+        if (bar.getChildren().size() < 4) {
+            bar.getChildren().add(tamamlandi);
+        }
     }
 }
