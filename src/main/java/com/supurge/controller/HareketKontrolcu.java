@@ -137,10 +137,12 @@ public class HareketKontrolcu {
     // =========================================================
     // En yakın temizlenmemiş hücreye A* ile git
     // =========================================================
+    // =========================================================
+    // En yakın temizlenmemiş hücreye A* ile git
+    // =========================================================
     private boolean enYakinTemizlenmemiseGit() {
         Hucre hedef = enYakinTemizlenmemisHucre();
         if (hedef == null) {
-            // Tüm alan temizlendi — robotu durdur
             robot.setCalisiyor(false);
             return false;
         }
@@ -149,24 +151,32 @@ public class HareketKontrolcu {
                 robot.getX(), robot.getY(), hedef.getX(), hedef.getY());
 
         if (yol == null || yol.size() < 2) {
-            // Bu hücreye ulaşılamıyor, bir sonrakini dene
             return rastgeleHareketEt();
         }
 
         aktifYol = yol;
-        aktifYolAdimi = 1; // 0. eleman mevcut konum
+        aktifYolAdimi = 1;
 
         if (aktifYolAdimi >= aktifYol.size()) {
             aktifYol = null;
             return false;
         }
+
         int[] sonrakiAdim = aktifYol.get(aktifYolAdimi);
         int dx = sonrakiAdim[0] - robot.getX();
         int dy = sonrakiAdim[1] - robot.getY();
         Yon yon = yonBul(dx, dy);
+
         if (yon != null) {
-            aktifYolAdimi++;
-            return git(yon);
+            // DEĞİŞEN KISIM: Gidebildiğinden emin ol, gidemiyorsa rotayı iptal et
+            boolean adimBasarili = git(yon);
+            if (adimBasarili) {
+                aktifYolAdimi++;
+                return true;
+            } else {
+                aktifYol = null; // Eşyaya denk geldi, bu rotayı çöpe at
+                return false;
+            }
         }
         return false;
     }
@@ -223,12 +233,17 @@ public class HareketKontrolcu {
     // =========================================================
     // Komşuda kirli hücre var mı?
     // =========================================================
+    // =========================================================
+    // Komşuda kirli hücre var mı?
+    // =========================================================
     private Yon kirliKomsuBul() {
         for (Yon yon : Yon.values()) {
             int nx = robot.getX() + yon.getDx();
             int ny = robot.getY() + yon.getDy();
             Hucre h = oda.getHucre(nx, ny);
-            if (h != null && h.isKirli()) return yon;
+
+            // DEĞİŞEN KISIM: Hem kirli olacak, HEM DE engel (mobilya) olmayacak
+            if (h != null && h.isKirli() && !h.isEngel()) return yon;
         }
         return null;
     }
@@ -316,9 +331,20 @@ public class HareketKontrolcu {
     // =========================================================
     // Yardımcılar
     // =========================================================
+    // =========================================================
+    // Yardımcılar
+    // =========================================================
     private boolean git(Yon yon) {
+        int nx = robot.getX() + yon.getDx();
+        int ny = robot.getY() + yon.getDy();
+
+        if (oda.engelMi(nx, ny)) {
+            aktifYol = null;
+            return false;
+        }
+
         robot.setYon(yon);
-        robot.hareketEt(robot.getX() + yon.getDx(), robot.getY() + yon.getDy());
+        robot.hareketEt(nx, ny);
         bataryaKontrolcu.hareketTuketimUygula();
         return true;
     }

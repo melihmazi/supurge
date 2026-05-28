@@ -24,6 +24,8 @@ public class SimulasyonKontrolcu {
     private long baslangicZamani = 0;
     private boolean sarjaDonuyorMu = false;
     private boolean manuelSarjDonusu = false; // kullanıcı butona bastıysa true
+    private boolean temizlikBittiMi = false;  // YENİ: Otonom dönüş kontrol bayrağı
+    private boolean kullaniciDuraklattiMi = false;
 
     public SimulasyonKontrolcu(int odaGenislik, int odaYukseklik) {
         this.oda = new Oda(odaGenislik, odaYukseklik);
@@ -46,22 +48,20 @@ public class SimulasyonKontrolcu {
 
     /** Simülasyonu başlatır veya devam ettirir. */
     public void baslat() {
+        kullaniciDuraklattiMi = false; // Kullanıcı başlattı, duraklatma modu iptal
         robot.setCalisiyor(true);
         if (baslangicZamani == 0) baslangicZamani = System.currentTimeMillis();
         bataryaKontrolcu.istasyondanAyril();
         sarjaDonuyorMu = false;
     }
 
-    /** Simülasyonu duraklatır. */
     public void duraklat() {
+        kullaniciDuraklattiMi = true; // Sisteme kullanıcının manuel müdahale ettiğini söyle
         robot.setCalisiyor(false);
     }
 
-    /** Simülasyonu tamamen sıfırlar. */
     public void sifirla() {
         oda.sifirla();
-        // Robot nesnesini yeniden oluşturmak yerine mevcut robotu sıfırla
-        // (View'daki referans bozulmasın)
         robot.setX(oda.getSarjIstasyonuX());
         robot.setY(oda.getSarjIstasyonuY());
         robot.setBatarya(100);
@@ -72,7 +72,9 @@ public class SimulasyonKontrolcu {
         baslangicZamani = 0;
         sarjaDonuyorMu = false;
         manuelSarjDonusu = false;
-        // Alt controller'ları sıfırla (robot referansı aynı kaldığı için yeniden oluşturmaya gerek yok)
+        temizlikBittiMi = false;
+        kullaniciDuraklattiMi = false; // Sıfırlamada bu bayrağı da temizle
+
         hareketKontrolcu.sifirla();
         temizlemeKontrolcu.sifirla();
         durumGuncelle();
@@ -84,10 +86,22 @@ public class SimulasyonKontrolcu {
 
     /**
      * Her simülasyon tick'inde çağrılır.
-     * Öncelik sırası: Şarj dönüşü → Batarya kritik → Temizleme → Hareket
      */
     public void adimAt() {
-        if (!robot.isCalisiyor()) return;
+        if (kullaniciDuraklattiMi) {
+            return;
+        }
+        // YENİ MANTIK: Robot çalışmıyorsa (algoritma gidecek yer bulamayıp motoru durdurduysa)
+        if (!robot.isCalisiyor()) {
+            if (robot.getX() != oda.getSarjIstasyonuX() || robot.getY() != oda.getSarjIstasyonuY()) {
+                if (oda.temizlenenHucreSayisi() > 0 && !sarjaDonuyorMu) {
+                    temizlikBittiMi = true;
+                    sarjaDonuyorMu = true;
+                    robot.setCalisiyor(true); // Dönüş yolculuğu için motorları ateşle
+                }
+            }
+            return;
+        }
 
         // 1. Şarj istasyonuna dönüş modu — temizleme yapmadan direkt git
         if (sarjaDonuyorMu || bataryaKontrolcu.donmesiGerekiyorMu()) {
@@ -124,10 +138,6 @@ public class SimulasyonKontrolcu {
     // Şarj İstasyonu Dönüşü
     // =========================================================
 
-    /**
-     * Kullanıcı isteğiyle şarj istasyonuna döner.
-     * İstasyona ulaşınca şarj olur ve BEKLER — otomatik devam etmez.
-     */
     public void sarjIstasyonunaDon() {
         sarjaDonuyorMu = true;
         manuelSarjDonusu = true;
@@ -136,10 +146,6 @@ public class SimulasyonKontrolcu {
         durumGuncelle();
     }
 
-    /**
-     * A* ile şarj istasyonuna bir adım atar.
-     * Ulaşınca şarj eder ve otomatik olarak simülasyona devam eder.
-     */
     private void sarjIstasyonunaAdimAt() {
         int hedefX = oda.getSarjIstasyonuX();
         int hedefY = oda.getSarjIstasyonuY();
@@ -150,11 +156,15 @@ public class SimulasyonKontrolcu {
             sarjaDonuyorMu = false;
             temizlemeKontrolcu.sayaciSifirla();
             hareketKontrolcu.sifirla();
-            // Kullanıcı manuel "İstasyona Dön" dediyse bekle, otomatik dönüşse devam et
-            if (!manuelSarjDonusu) {
-                robot.setCalisiyor(true);
+
+            // YENİ MANTIK: Neden döndük?
+            if (temizlikBittiMi) {
+                robot.setCalisiyor(false); // Temizlik bitti, uyku moduna geç
+                temizlikBittiMi = false;
+            } else if (!manuelSarjDonusu) {
+                robot.setCalisiyor(true);  // Şarj için döndüyse dolunca işe geri dön
             } else {
-                robot.setCalisiyor(false);
+                robot.setCalisiyor(false); // Kullanıcı butona bastıysa bekle
                 manuelSarjDonusu = false;
             }
             return;
@@ -173,36 +183,31 @@ public class SimulasyonKontrolcu {
     }
 
     // =========================================================
-    // Kullanıcı Eylemleri (View'dan çağrılır)
+    // Kullanıcı Eylemleri
     // =========================================================
 
-    /** Belirtilen hücreye kir ekler. */
     public void kirEkle(int x, int y, KirTuru kirTuru) {
         temizlemeKontrolcu.kirEkle(x, y, kirTuru);
         durumGuncelle();
     }
 
-    /** Belirtilen hücreye engel (mobilya) ekler. */
     public void engelEkle(int x, int y, int mobilyaTuru) {
         oda.engelEkle(x, y, mobilyaTuru);
     }
 
-    /** Robot hızını ayarlar (0.5x - 3.0x). */
     public void hizAyarla(double hiz) {
         robot.setHiz(hiz);
     }
 
-    /** Temizleme algoritmasını değiştirir. */
     public void algoritmaAyarla(TemizlemeAlgoritması algoritma) {
         robot.setAlgoritma(algoritma);
-        hareketKontrolcu.sifirla(); // spiral sayaçlarını sıfırla
+        hareketKontrolcu.sifirla();
     }
 
-    /** Bataryayı manuel olarak ayarlar (0-100). */
     public void bataryaAyarla(double yuzde) {
         bataryaKontrolcu.bataryaAyarla(yuzde);
         if (yuzde > bataryaKontrolcu.getDusukBataryaEsigi()) {
-            sarjaDonuyorMu = false; // yeterli batarya varsa dönüş modunu kapat
+            sarjaDonuyorMu = false;
         }
         durumGuncelle();
     }
@@ -224,18 +229,17 @@ public class SimulasyonKontrolcu {
         durum.setSarjaDonuyorMu(sarjaDonuyorMu);
         durum.setBataryaDurumu(bataryaKontrolcu.bataryaDurumMetni());
         durum.setCalisiyor(robot.isCalisiyor());
-        // Tamamlandı: çalışmıyor VE ulaşılabilir kirli/ziyaret edilmemiş hücre yok
+
+        // YENİ MANTIK: Sadece robot yuvaya başarıyla park ettiğinde ve temizlik yaptığında "Tamamlandı" de.
         boolean tumTemiz = !robot.isCalisiyor()
-                && oda.kirliHucreleriGetir().isEmpty()
+                && robot.getX() == oda.getSarjIstasyonuX()
+                && robot.getY() == oda.getSarjIstasyonuY()
                 && oda.temizlenenHucreSayisi() > 0;
+
         durum.setTamamlandi(tumTemiz);
         if (baslangicZamani > 0)
             durum.setGecenSure((System.currentTimeMillis() - baslangicZamani) / 1000);
     }
-
-    // =========================================================
-    // Getters (View erişimi için)
-    // =========================================================
 
     public Oda getOda()                       { return oda; }
     public Robot getRobot()                   { return robot; }
