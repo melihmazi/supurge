@@ -6,6 +6,7 @@ import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
@@ -28,7 +29,7 @@ public class AnaEkran {
     private BilgiPaneli bilgiPaneli;
     private IstatistikBari istatistikBari;
     private long sonAdimZamani = 0;
-    private boolean tamamlandiGosterildi = false; // tamamlanma bildirimi bir kez göster
+    private boolean tamamlandiGosterildi = false;
 
     public void baslat(Stage sahne) {
         kontrolcu = new SimulasyonKontrolcu(ODA_GENISLIK, ODA_YUKSEKLIK);
@@ -82,17 +83,19 @@ public class AnaEkran {
                     bilgiPaneli.guncelle(kontrolcu.getDurum());
                     istatistikBari.guncelle(kontrolcu.getDurum());
 
-                    // Tamamlanma bildirimi (bir kez)
+                    // Tamamlanma bildirimi
                     if (kontrolcu.getDurum().isTamamlandi() && !tamamlandiGosterildi) {
                         tamamlandiGosterildi = true;
                         baslikBariTamamlandiGoster(baslikBari);
                     }
                     // Sıfırlandıysa bildirimi temizle
+                    // Sıfırlandıysa bildirimi temizle
                     if (!kontrolcu.getDurum().isTamamlandi() && !kontrolcu.getDurum().isCalisiyor()) {
                         if (tamamlandiGosterildi) {
                             tamamlandiGosterildi = false;
-                            // 4. eleman varsa kaldır (tamamlandı etiketi)
-                            if (baslikBari.getChildren().size() >= 4) {
+
+                            // YENİ HALİ: 3. indeksten sonraki tüm etiketleri temizle
+                            while (baslikBari.getChildren().size() > 3) {
                                 baslikBari.getChildren().remove(3);
                             }
                         }
@@ -103,11 +106,24 @@ public class AnaEkran {
             }
         }.start();
 
-        Scene gorunum = new Scene(kokDuzen);
+        // --- GÜNCELLENEN KAYDIRMA ÇUBUĞU (SCROLLPANE) KISMI ---
+
+        ScrollPane scrollPane = new ScrollPane(kokDuzen);
+
+        // İçeriği ekrana sığmaya zorlayan ayarları kaldırdık, yerine kendi boyutunda kalmasını sağladık
+        // Kaydırma çubuklarının ihtiyaç anında hem yatay hem dikey olarak çıkmasını garanti altına alıyoruz:
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // Yatay (Enine) Kaydırma
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // Dikey (Dikine) Kaydırma
+
+        scrollPane.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
+
+        Scene gorunum = new Scene(scrollPane, 1200, 700);
         sahne.setTitle("Robot Süpürge Simülasyonu");
         sahne.setScene(gorunum);
-        sahne.setResizable(false);
+        sahne.setResizable(true);
         sahne.show();
+
+        // -----------------------------------------------------
     }
 
     private HBox baslikBariOlustur() {
@@ -130,14 +146,28 @@ public class AnaEkran {
         return bar;
     }
 
-    /** Tamamlanma durumunda başlık barına yeşil bildirim ekler. */
+    /** Tamamlanma durumunda başlık barına yeşil bildirim ve duruma göre uyarı ekler. */
     private void baslikBariTamamlandiGoster(HBox bar) {
-        Label tamamlandi = new Label("  ✅ Temizlik Tamamlandı!");
+        // 1. Standart "Tamamlandı" etiketi
+        Label tamamlandi = new Label("Temizlik Tamamlandı");
         tamamlandi.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         tamamlandi.setTextFill(Color.rgb(46, 204, 113));
         tamamlandi.setStyle("-fx-background-color: #1a3a2a; -fx-background-radius: 6; -fx-padding: 4 10;");
+
         if (bar.getChildren().size() < 4) {
             bar.getChildren().add(tamamlandi);
+        }
+
+        // 2. Ulaşılamayan Kir Kontrolü (Ek Puan Özelliği)
+        // DİKKAT: "getKalanKirSayisi()" metodunun adı Model sınıfınızda farklı olabilir
+        // (Örn: getKalanAlan(), getTemizlenmeyenHucreSayisi() vb.). Hata verirse kendi metodunuzun adını yazın.
+        if (kontrolcu.getDurum().getKalanKirliHucre() > 0) {
+            Label ulasilamayan = new Label("Ulaşılamayan Alanda Kir Tespit Edildi!");
+            ulasilamayan.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+            ulasilamayan.setTextFill(Color.rgb(255, 152, 0)); // Turuncu uyarı rengi
+            ulasilamayan.setStyle("-fx-background-color: #4a2a0a; -fx-background-radius: 6; -fx-padding: 4 10;");
+
+            bar.getChildren().add(ulasilamayan);
         }
     }
 }
