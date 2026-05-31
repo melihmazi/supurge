@@ -60,6 +60,7 @@ public class AnaEkran {
 
         // Başlık barı
         final HBox baslikBari = baslikBariOlustur();
+
         // Orta alan: sol panel + canvas + sağ panel
         HBox ortaAlan = new HBox(0);
         ortaAlan.getChildren().addAll(kontrolPaneli, odaGorunumu, bilgiPaneli);
@@ -88,7 +89,7 @@ public class AnaEkran {
                         tamamlandiGosterildi = true;
                         baslikBariTamamlandiGoster(baslikBari);
                     }
-                    // Sıfırlandıysa bildirimi temizle
+
                     // Sıfırlandıysa bildirimi temizle
                     if (!kontrolcu.getDurum().isTamamlandi() && !kontrolcu.getDurum().isCalisiyor()) {
                         if (tamamlandiGosterildi) {
@@ -106,15 +107,10 @@ public class AnaEkran {
             }
         }.start();
 
-        // --- GÜNCELLENEN KAYDIRMA ÇUBUĞU (SCROLLPANE) KISMI ---
-
+        // ScrollPane (Kaydırma Çubuğu) Ayarları
         ScrollPane scrollPane = new ScrollPane(kokDuzen);
-
-        // İçeriği ekrana sığmaya zorlayan ayarları kaldırdık, yerine kendi boyutunda kalmasını sağladık
-        // Kaydırma çubuklarının ihtiyaç anında hem yatay hem dikey olarak çıkmasını garanti altına alıyoruz:
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // Yatay (Enine) Kaydırma
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED); // Dikey (Dikine) Kaydırma
-
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setStyle("-fx-background-color: transparent; -fx-background-insets: 0; -fx-padding: 0;");
 
         Scene gorunum = new Scene(scrollPane, 1200, 700);
@@ -122,8 +118,6 @@ public class AnaEkran {
         sahne.setScene(gorunum);
         sahne.setResizable(true);
         sahne.show();
-
-        // -----------------------------------------------------
     }
 
     private HBox baslikBariOlustur() {
@@ -146,10 +140,8 @@ public class AnaEkran {
         return bar;
     }
 
-    /** Tamamlanma durumunda başlık barına yeşil bildirim ve duruma göre uyarı ekler. */
     private void baslikBariTamamlandiGoster(HBox bar) {
-        // 1. Standart "Tamamlandı" etiketi
-        Label tamamlandi = new Label("Temizlik Tamamlandı");
+        Label tamamlandi = new Label(" Temizlik Tamamlandı!");
         tamamlandi.setFont(Font.font("Arial", FontWeight.BOLD, 14));
         tamamlandi.setTextFill(Color.rgb(46, 204, 113));
         tamamlandi.setStyle("-fx-background-color: #1a3a2a; -fx-background-radius: 6; -fx-padding: 4 10;");
@@ -157,17 +149,20 @@ public class AnaEkran {
         if (bar.getChildren().size() < 4) {
             bar.getChildren().add(tamamlandi);
         }
-
-        // 2. Ulaşılamayan Kir Kontrolü (Ek Puan Özelliği)
-        // DİKKAT: "getKalanKirSayisi()" metodunun adı Model sınıfınızda farklı olabilir
-        // (Örn: getKalanAlan(), getTemizlenmeyenHucreSayisi() vb.). Hata verirse kendi metodunuzun adını yazın.
         if (kontrolcu.getDurum().getKalanKirliHucre() > 0) {
-            Label ulasilamayan = new Label("Ulaşılamayan Alanda Kir Tespit Edildi!");
-            ulasilamayan.setFont(Font.font("Arial", FontWeight.BOLD, 14));
-            ulasilamayan.setTextFill(Color.rgb(255, 152, 0)); // Turuncu uyarı rengi
-            ulasilamayan.setStyle("-fx-background-color: #4a2a0a; -fx-background-radius: 6; -fx-padding: 4 10;");
-
-            bar.getChildren().add(ulasilamayan);
+            Label ulasilamayanKir = new Label("Ulaşılamayan Alanda Kir Kaldı!");
+            ulasilamayanKir.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+            ulasilamayanKir.setTextFill(Color.rgb(255, 152, 0));
+            ulasilamayanKir.setStyle("-fx-background-color: #4a2a0a; -fx-background-radius: 6; -fx-padding: 4 10;");
+            bar.getChildren().add(ulasilamayanKir);
+        }
+//temız ulasılamayan alan
+        else if (kontrolcu.ulasilamayanAlanVarMi()) {
+            Label ulasilamayanAlan = new Label("Ulaşılamayan Alanlar Tespit Edildi!");
+            ulasilamayanAlan.setFont(Font.font("Arial", FontWeight.BOLD, 14));
+            ulasilamayanAlan.setTextFill(Color.rgb(255, 193, 7));
+            ulasilamayanAlan.setStyle("-fx-background-color: #4a3a0a; -fx-background-radius: 6; -fx-padding: 4 10;");
+            bar.getChildren().add(ulasilamayanAlan);
         }
     }
 }
