@@ -1,116 +1,112 @@
-# 🤖 Robot Süpürge Simülasyonu
+# Robot Süpürge Simülasyonu
 
-> **BZ 214 Görsel Programlama** dersi kapsamında geliştirilmiştir.  
-> Java 17 + JavaFX 17 ile MVC mimarisi kullanılarak yazılmıştır.
+BZ 214 Görsel Programlama dersi projesi olarak geliştirilmiştir.
+Projede Java kullanılmış olup, arayüz tasarımı için JavaFX tercih edilmiştir. 
+Kodlar okunabilirliği artırmak amacıyla MVC mantığına göre üç ana parçaya (Model, View, Controller) ayrılmıştır.
 
----
 
-## 🛠 Gereksinimler
+## Gereksinimler
 
-| Araç | Versiyon | İndirme |
-|------|----------|---------|
-| Java JDK | 23.0.2 | [oracle.com/java](https://www.oracle.com/java/technologies/downloads/) |
-| Apache Maven | 3.8+ | [maven.apache.org](https://maven.apache.org/download.cgi) |
+- Java JDK  23.0.2  [oracle.com/java](https://www.oracle.com/java/technologies/downloads/) 
 
-> JavaFX ayrıca kurulmasına gerek yok — Maven otomatik indirir (JavaFX 17.0.6).
+- Apache Maven  3.8+  [maven.apache.org](https://maven.apache.org/download.cgi) 
 
----
+- JavaFX ayrıca kurulmasına gerek yok, Maven otomatik indirir (JavaFX 17.0.6).
 
-## 🚀 Çalıştırma
+##  Nasıl Çalıştırılır?
 
-```bash
-# Projeyi klonla
-git clone https://github.com/melihmazi/supurge.git
-cd supurge
+Projeyi bilgisayarınızda çalıştırabilmek için Java (JDK 23.0.2) ve 
+Maven'ın kurulu olması yeterli. JavaFX kütüphaneleriyle ekstra uğraşmanıza
+gerek yok, Maven ilk çalıştırmada gerekli tüm paketleri kendisi indiriyor. 
+Projeyi ayağa kaldırmak için terminali açıp önce git clone https://github.com/melihmazi/supurge.git
+komutuyla dosyaları bilgisayarınıza çekin. Ardından cd supurge yazarak proje 
+klasörünün içine girin ve son olarak mvn javafx:run komutunu çalıştırın. 
+Simülasyon ekranı karşınıza gelecektir.
 
-# Derle ve çalıştır
-mvn javafx:run
-```
+# Projeyi klonla ve derle, çalıştır
+* git clone https://github.com/melihmazi/supurge.git
+* cd supurge
+* mvn javafx:run
 
 İnternet bağlantısı ilk çalıştırmada bağımlılıkları indirir (~50 MB).
 
----
+## Proje Yapısı (MVC)
 
-## 📁 Proje Yapısı (MVC)
+- src
+    - Controller
+        - SimulasyonKontrolcu.java
+        - HareketKontrolcu.java
+        - TemizlemeKontrolcu.java
+        - BataryaKontrolcu.java
+        - YolBulmaKontrolcu.java
+    - Model
+        - Hucre.java
+        - Oda.java
+        - Robot.java
+        - KirTuru.java
+        - Yon.java
+        - TemizlemeAlgoritması.java
+        - SimulasyonDurumu.java
+    - View
+        - AnaEkran.java
+        - OdaGorunumu.java
+        - KontrolPaneli.java
+        - BilgiPaneli.java
+        - IstatistikBari.java
+    - Main.java
 
-```
-robot-supurge/
-├── pom.xml                                # Maven yapılandırması
-│
-└── src/main/java/com/supurge/
-    │
-    ├── Main.java                          # Uygulama başlangıç noktası
-    │
-    ├── model/                             # MODEL — veri ve iş kuralları
-    │   ├── Hucre.java                     # Grid hücresi (engel, kir, ziyaret, şarj)
-    │   ├── Oda.java                       # 20×14 grid yapısı
-    │   ├── Robot.java                     # Robot durumu (konum, batarya, yön, hız)
-    │   ├── KirTuru.java                   # Enum: TOZ | SIVI | LEKE
-    │   ├── Yon.java                       # Enum: KUZEY | GUNEY | DOGU | BATI
-    │   ├── TemizlemeAlgoritması.java      # Enum: RASTGELE | SPIRAL | DUVAR_TAKIP
-    │   └── SimulasyonDurumu.java          # Controller→View veri taşıyıcısı (DTO)
-    │
-    ├── controller/                        # CONTROLLER — iş mantığı
-    │   ├── SimulasyonKontrolcu.java       # Ana orkestratör, simülasyon döngüsü
-    │   ├── HareketKontrolcu.java          # Hareket algoritmaları + A* kapsama
-    │   ├── TemizlemeKontrolcu.java        # Kir temizleme mantığı
-    │   ├── BataryaKontrolcu.java          # Batarya tüketimi ve şarj yönetimi
-    │   └── YolBulmaKontrolcu.java         # BFS ve A* yol bulma algoritmaları
-    │
-    └── view/                              # VIEW — JavaFX arayüzü
-        ├── AnaEkran.java                  # Ana pencere + AnimationTimer döngüsü
-        ├── OdaGorunumu.java               # Canvas çizimi (oda, mobilyalar, robot)
-        ├── KontrolPaneli.java             # Sol panel (kir, mobilya, hız, algoritma)
-        ├── BilgiPaneli.java               # Sağ panel (robot durumu, batarya, istatistik)
-        └── IstatistikBari.java            # Alt bar (toplam alan, süre, toplanan toz)
-```
+### Teknik Özellikler
+- JavaFX
+- MVC tasarım mimarisi
+- OOP prensipleri
 
----
+## Özellikler
 
-## ✨ Özellikler
+### Robotun Hareketi ve Algoritmalar
+- Yol Bulma: Robot odayı kafasına göre değil, BFS ve A* algoritmalarını kullanarak geziyor. Her adımda en yakın temizlenmemiş hücreyi bulup rotayı oraya çiziyor.
 
-### Robot Hareketi
-- **Akıllı Kapsama:** Her adımda BFS ile en yakın ziyaret edilmemiş hücreyi bulur, A* ile oraya gider
-- **3 Algoritma:** Rastgele, Spiral, Duvar Takip (sol el kuralı)
-- **Döngü Yok:** Tüm hücreler ziyaret edilince robot durur
+- 3 Farklı Mod: Temizlik için 3 tane mantık yazdık: Rastgele, Spiral ve Duvar Takibi (klasik sol el kuralı).
 
-### Temizleme
-| Kir Türü | Temizleme Süresi | Batarya Tüketimi |
-|----------|-----------------|-----------------|
-| 🧹 Toz   | 1 adım          | Düşük           |
-| 💧 Sıvı  | 3 adım          | Orta            |
-| 🌀 Leke  | 5 adım          | Yüksek          |
+- Sonsuz Döngü Koruması: Haritada girilmedik yer kalmadığında robot boş boş dönmesin diye sistemi otomatik durduruyoruz.
 
-### Batarya & Şarj
-- **%20'de otomatik dönüş:** Robot şarj istasyonuna A* ile döner, şarj olur, kaldığı yerden devam eder
-- **Manuel dönüş:** "🏠 İstasyona Dön" butonu — temizleme yapmadan direkt döner, istasyonda bekler
-- **%10 kritik:** Şarj istasyonuna ulaşamazsa durur
+### Temizlik ve Kir Zorlukları
+Odada 3 farklı kir tipi var ve her birinin temizlenme süresi/şarj tüketimi farklı:
 
-### Mobilyalar
-Sol panelden 6 farklı mobilya seçip canvas'a tıklayarak eklenebilir:
-`🛋 Koltuk` · `🪑 Sehpa` · `🪑 Masa` · `🪴 Saksı` · `📚 Kitaplık` · `🪑 Sandalye`
+Toz -> 1 adım (Hemen alıyor), Düşük 
 
-### Kontroller
-| Buton | İşlev |
-|-------|-------|
-| ▶ Başlat | Simülasyonu başlatır / devam ettirir |
-| ⏸ Duraklat | Robotu durdurur |
-| ⏹ Sıfırla | Her şeyi sıfırlar |
-| 🏠 İstasyona Dön | Robotu şarj istasyonuna gönderir |
+Sıvı -> 3 adım (Uğraştırıyor),  Orta 
 
----
+Leke -> 5 adım (Zorlu),  Yüksek 
 
-## 🏗 Mimari
+### Batarya Olayı
+* Otomatik Şarj (%20): Batarya %20'ye düşünce robot temizliği salıp A* algoritmasıyla en kısa yoldan şarj istasyonuna dönüyor. Şarjı fullenince kaldığı yerden devam ediyor.
 
-Proje katı **MVC** mimarisine uyar:
+* Şarjın Bitmesi (%10): Eğer şarj %10'a düşerse ve robot hala istasyona yetişemediyse olduğu yerde kapanıyor.
 
-- **Model** → Sadece veri tutar, iş mantığı içermez
-- **Controller** → Tüm iş mantığı burada, View'a `SimulasyonDurumu` DTO'su ile veri gönderir
-- **View** → Sadece çizer ve kullanıcı olaylarını Controller'a iletir, Model'e doğrudan erişmez
+* Manuel Dönüş: Arayüze bir de "İstasyona Dön" butonu koyduk. Basarsan temizliği falan bırakıp direkt yuvasına gidip bekliyor.
 
----
+### Engeller (Mobilyalar)
+Sol panelden eşya seçip haritada (canvas) tıkladığımız yere mobilya ekleyebiliyoruz. Robot bunlara çarpmadan etrafından dolanıyor. Eklediğimiz eşyalar:
+Koltuk,  Sehpa,  Masa,  Saksı,  Kitaplık,  Sandalye
 
-## 👥 Katkıda Bulunanlar
+### Arayüz Butonları
+Buton Ne İşe Yarıyor?
 
-- [@melihmazi](https://github.com/melihmazi)
-- [@merts](https://github.com/merts)
+Başlat -> Simülasyonu başlatıyor  duraklatıldıysa devam ettiriyor.
+
+Duraklat -> Robotu olduğu yerde donduruyor.
+
+Sıfırla -> Tüm haritayı ve ayarları siliyor, baştan başlatıyor.
+
+İstasyona Dön -> Robotu direkt şarj istasyonuna çağırıyor.
+
+## Kod Yapısı (MVC)
+
+Projede spagetti kod olmasın ve sonradan ekleme yaparken patlamayalım diye katı bir MVC mimarisi kurduk:
+
+* Model: Sadece verileri tutuyor. Robotun koordinatları, şarj durumu, odanın grid yapısı falan burada. İş mantığı (logic) kesinlikle içermiyor.
+
+* Controller: Bütün olay burada dönüyor. Hareket algoritmaları, batarya hesabı, A*/BFS yol bulma hesaplamaları hepsi Controller klasöründe. View'a sadece gerekli verileri paslıyor.
+
+* View: Sadece JavaFX ekran tasarımları ve canvas çizimleri. Doğrudan Model'e erişemiyor, butona tıklanma gibi durumları sadece Controller'a iletiyor.
+
