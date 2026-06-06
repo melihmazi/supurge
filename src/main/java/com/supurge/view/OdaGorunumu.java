@@ -75,7 +75,6 @@ public class OdaGorunumu extends Canvas {
 
                 if (h.isEngel()) {
                     karoZeminCiz(gc, px, py, false);
-                    mobilyaGolgesiniCiz(gc, px, py);
                     mobilyaCiz(gc, px, py, x, y);
                 } else if (h.isSarjIstasyonu()) {
                     karoZeminCiz(gc, px, py, false);
@@ -116,12 +115,7 @@ public class OdaGorunumu extends Canvas {
         gc.fillRect(px + h2 + 1, py + h2 + 1, h2 - 3, h2 - 3);
     }
 
-    // Mobilya altına hafif gölge
-    private void mobilyaGolgesiniCiz(GraphicsContext gc, double px, double py) {
-        int H = HUCRE_BOYUTU;
-        gc.setFill(Color.rgb(0, 0, 0, 0.12));
-        gc.fillRoundRect(px + 5, py + 5, H - 6, H - 6, 6, 6);
-    }
+
 
     // =========================================================
     // Mobilya yönlendirici
@@ -218,9 +212,6 @@ public class OdaGorunumu extends Canvas {
         gc.strokeOval(cx - 10, cy - 10, 20, 20);
         gc.strokeOval(cx - 6,  cy - 6,  12, 12);
 
-        // Cam yansıması
-        gc.setFill(Color.rgb(220, 240, 255, 0.3));
-        gc.fillOval(cx - 12, cy - 12, 10, 8);
 
         // Kenar çizgisi
         gc.setStroke(Color.rgb(100, 65, 28, 0.8));
@@ -252,9 +243,6 @@ public class OdaGorunumu extends Canvas {
         gc.setLineWidth(1.5);
         gc.strokeRoundRect(px + 3, py + 3, H - 6, H - 6, 4, 4);
 
-        // Üst sol köşe parlama
-        gc.setFill(Color.rgb(200, 165, 110, 0.25));
-        gc.fillRoundRect(px + 5, py + 5, (H - 10) * 0.55, (H - 10) * 0.3, 2, 2);
 
         // Masa üstü nesne: küçük defter
         gc.setFill(Color.rgb(240, 240, 220));
@@ -296,7 +284,6 @@ public class OdaGorunumu extends Canvas {
         // Yapraklar (üstten bakış — daire şeklinde yayılmış)
         Color yaprakAna  = Color.rgb(55, 140, 65);
         Color yaprakKoyu = Color.rgb(35, 105, 45);
-        Color yaprakAcik = Color.rgb(90, 175, 80);
 
         // 6 yaprak, etrafına yayılmış
         double[][] yapraklar = {
@@ -310,16 +297,7 @@ public class OdaGorunumu extends Canvas {
         for (double[] y : yapraklar) {
             gc.setFill(yaprakAna);
             gc.fillOval(y[0], y[1], y[2], y[3]);
-            // Yaprak damarı
-            gc.setStroke(yaprakKoyu);
-            gc.setLineWidth(0.7);
-            gc.strokeLine(y[0] + y[2] / 2, y[1] + y[3] * 0.8,
-                          y[0] + y[2] / 2, y[1] + y[3] * 0.2);
         }
-        // Merkez parlama
-        gc.setFill(yaprakAcik);
-        gc.fillOval(cx - 5, cy - 10, 8, 8);
-        gc.setLineWidth(1);
     }
 
     // =========================================================
@@ -418,9 +396,6 @@ public class OdaGorunumu extends Canvas {
         gc.strokeLine(px + 9,      py + 26, px + H - 9, py + 26);
         gc.strokeLine(px + 9,      py + 32, px + H - 9, py + 32);
 
-        // Oturma yüzeyi parlama
-        gc.setFill(acik);
-        gc.fillRoundRect(px + 9, py + 17, (H - 18) * 0.5, 4, 2, 2);
 
         // Sırtlık (arka)
         gc.setFill(koyu);
@@ -543,9 +518,6 @@ public class OdaGorunumu extends Canvas {
         double cy = py + HUCRE_BOYUTU / 2.0;
         double r  = HUCRE_BOYUTU / 2.0 - 3;
 
-        // Gölge
-        gc.setFill(Color.rgb(0, 0, 0, 0.2));
-        gc.fillOval(cx - r + 3, cy - r + 3, r * 2, r * 2);
 
         // Dış halka
         gc.setFill(Color.rgb(42, 48, 58));

@@ -32,7 +32,7 @@ public class KontrolPaneli extends VBox {
         setStyle("-fx-background-color: #1e2235;");
 
         getChildren().addAll(
-            bolumBasligi("🔧 Araçlar"),
+            bolumBasligi("Araçlar"),
             kirBolumu(),
             engelBolumu(),
             hizBolumu(),
@@ -59,20 +59,20 @@ public class KontrolPaneli extends VBox {
 
     // ---- Kir ekleme bölümü ----
     private VBox kirBolumu() {
-        Button kirEkleBtn = stilliButon("🧹  Kir Ekle", "#3a7bd5", "#2d6abf");
+        Button kirEkleBtn = stilliButon("Kir Ekle", "#3a7bd5", "#2d6abf");
         kirEkleBtn.setOnAction(e -> {
             kirEkleModu = !kirEkleModu;
             engelEkleModu = false;
             kirEkleBtn.setStyle(kirEkleModu
-                ? "-fx-background-color: #5a9bf5; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 12;"
-                : "-fx-background-color: #3a7bd5; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 12;");
+                ? "-fx-background-color: #5a9bf5; -fx-text-fill: white; -fx-font-size: 12;"
+                : "-fx-background-color: #3a7bd5; -fx-text-fill: white; -fx-font-size: 12;");
         });
 
         kirTuruGrubu = new ToggleGroup();
 
-        ToggleButton toz  = kirToggle("🧹 Toz",  KirTuru.TOZ);
-        ToggleButton sivi = kirToggle("💧 Sıvı", KirTuru.SIVI);
-        ToggleButton leke = kirToggle("🌀 Leke", KirTuru.LEKE);
+        ToggleButton toz  = kirToggle("Toz",  KirTuru.TOZ);
+        ToggleButton sivi = kirToggle("Sıvı", KirTuru.SIVI);
+        ToggleButton leke = kirToggle("Leke", KirTuru.LEKE);
         toz.setSelected(true);
 
         HBox kirSecim = new HBox(4, toz, sivi, leke);
@@ -85,32 +85,32 @@ public class KontrolPaneli extends VBox {
         tb.setToggleGroup(kirTuruGrubu);
         tb.setUserData(kirTuru);
         tb.setFont(Font.font("Arial", 10));
-        tb.setStyle("-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc; -fx-background-radius: 4;");
+        tb.setStyle("-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc;");
         tb.selectedProperty().addListener((obs, o, n) ->
             tb.setStyle(n
-                ? "-fx-background-color: #3a7bd5; -fx-text-fill: white; -fx-background-radius: 4;"
-                : "-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc; -fx-background-radius: 4;"));
+                ? "-fx-background-color: #3a7bd5; -fx-text-fill: white;"
+                : "-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc;"));
         return tb;
     }
 
     // ---- Engel ekleme ----
     private VBox engelBolumu() {
-        Button engelBtn = stilliButon("🛋  Mobilya Ekle", "#2a7a4a", "#1f6038");
+        Button engelBtn = stilliButon("Mobilya Ekle", "#2a7a4a", "#1f6038");
         engelBtn.setOnAction(e -> {
             engelEkleModu = !engelEkleModu;
             kirEkleModu = false;
             engelBtn.setStyle(engelEkleModu
-                ? "-fx-background-color: #3aaa6a; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 12;"
-                : "-fx-background-color: #2a7a4a; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 12;");
+                ? "-fx-background-color: #3aaa6a; -fx-text-fill: white;-fx-font-size: 12;"
+                : "-fx-background-color: #2a7a4a; -fx-text-fill: white;-fx-font-size: 12;");
         });
 
         mobilyaTuruGrubu = new ToggleGroup();
-        ToggleButton koltuk   = mobilyaToggle("🛋 Koltuk",   0);
-        ToggleButton sehpa    = mobilyaToggle("🪑 Sehpa",    1);
-        ToggleButton masa     = mobilyaToggle("🪑 Masa",     2);
-        ToggleButton saksi    = mobilyaToggle("🪴 Saksı",    3);
-        ToggleButton kitaplik = mobilyaToggle("📚 Kitaplık", 4);
-        ToggleButton sandalye = mobilyaToggle("🪑 Sandalye", 5);
+        ToggleButton koltuk   = mobilyaToggle("Koltuk",   0);
+        ToggleButton sehpa    = mobilyaToggle("Sehpa",    1);
+        ToggleButton masa     = mobilyaToggle("Masa",     2);
+        ToggleButton saksi    = mobilyaToggle("Saksı",    3);
+        ToggleButton kitaplik = mobilyaToggle("Kitaplık", 4);
+        ToggleButton sandalye = mobilyaToggle("Sandalye", 5);
         koltuk.setSelected(true);
 
         HBox satir1 = new HBox(3, koltuk, sehpa, masa);
@@ -124,11 +124,11 @@ public class KontrolPaneli extends VBox {
         tb.setToggleGroup(mobilyaTuruGrubu);
         tb.setUserData(tur);
         tb.setFont(Font.font("Arial", 9));
-        tb.setStyle("-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc; -fx-background-radius: 4; -fx-padding: 2 4;");
+        tb.setStyle("-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc; -fx-padding: 2 4;");
         tb.selectedProperty().addListener((obs, o, n) -> {
             tb.setStyle(n
-                ? "-fx-background-color: #2a7a4a; -fx-text-fill: white; -fx-background-radius: 4; -fx-padding: 2 4;"
-                : "-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc; -fx-background-radius: 4; -fx-padding: 2 4;");
+                ? "-fx-background-color: #2a7a4a; -fx-text-fill: white;-fx-padding: 2 4;"
+                : "-fx-background-color: #2a2f45; -fx-text-fill: #aabbcc;-fx-padding: 2 4;");
             if (n) seciliMobilyaTuru = (int) tb.getUserData();
         });
         return tb;
@@ -153,7 +153,7 @@ public class KontrolPaneli extends VBox {
         satir.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(hiz, Priority.ALWAYS);
 
-        return bolum(bolumBasligi("⚡ Robot Hızı"), satir);
+        return bolum(bolumBasligi("Robot Hızı"), satir);
     }
 
     // ---- Algoritma ----
@@ -169,7 +169,7 @@ public class KontrolPaneli extends VBox {
             if (n != null) kontrolcu.algoritmaAyarla((TemizlemeAlgoritması) n.getUserData());
         });
 
-        return bolum(bolumBasligi("⚙ Temizlik Algoritması"), rastgele, spiral, duvarTakip);
+        return bolum(bolumBasligi("Temizlik Algoritması"), rastgele, spiral, duvarTakip);
     }
 
     private RadioButton algoritmaRadio(String metin, TemizlemeAlgoritması alg) {
@@ -189,22 +189,22 @@ public class KontrolPaneli extends VBox {
         batarya.setStyle("-fx-control-inner-background: #2a2f45;");
         batarya.valueProperty().addListener((obs, o, n) -> kontrolcu.bataryaAyarla(n.doubleValue()));
 
-        return bolum(bolumBasligi("🔋 Batarya Ayarı"), batarya);
+        return bolum(bolumBasligi("Batarya Ayarı"), batarya);
     }
 
     // ---- Kontrol butonları ----
     private VBox kontrolButonlari() {
-        Button baslatBtn  = stilliButon("▶  Başlat",       "#27ae60", "#1e8449");
-        Button duraklatBtn = stilliButon("⏸  Duraklat",    "#2980b9", "#1f6fa0");
-        Button sifirlaBtn  = stilliButon("⏹  Sıfırla",     "#c0392b", "#a93226");
-        Button sarjDonBtn  = stilliButon("🏠  İstasyona Dön", "#e67e22", "#ca6f1e");
+        Button baslatBtn  = stilliButon("Başlat",       "#27ae60", "#1e8449");
+        Button duraklatBtn = stilliButon("Duraklat",    "#2980b9", "#1f6fa0");
+        Button sifirlaBtn  = stilliButon("Sıfırla",     "#c0392b", "#a93226");
+        Button sarjDonBtn  = stilliButon("İstasyona Dön", "#e67e22", "#ca6f1e");
 
         baslatBtn.setOnAction(e  -> kontrolcu.baslat());
         duraklatBtn.setOnAction(e -> kontrolcu.duraklat());
         sifirlaBtn.setOnAction(e  -> kontrolcu.sifirla());
         sarjDonBtn.setOnAction(e  -> kontrolcu.sarjIstasyonunaDon());
 
-        return bolum(bolumBasligi("🎮 Kontroller"),
+        return bolum(bolumBasligi("Kontroller"),
                      baslatBtn, duraklatBtn, sifirlaBtn, sarjDonBtn);
     }
 
@@ -214,9 +214,9 @@ public class KontrolPaneli extends VBox {
         btn.setMaxWidth(Double.MAX_VALUE);
         btn.setFont(Font.font("Arial", FontWeight.BOLD, 12));
         String temelStil = String.format(
-            "-fx-background-color: %s; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 12;", renk);
+            "-fx-background-color: %s; -fx-text-fill: white; -fx-font-size: 12;", renk);
         String hoverStil = String.format(
-            "-fx-background-color: %s; -fx-text-fill: white; -fx-background-radius: 6; -fx-font-size: 12;", hoverRenk);
+            "-fx-background-color: %s; -fx-text-fill: white; -fx-font-size: 12;", hoverRenk);
         btn.setStyle(temelStil);
         btn.setOnMouseEntered(e -> btn.setStyle(hoverStil));
         btn.setOnMouseExited(e  -> btn.setStyle(temelStil));
