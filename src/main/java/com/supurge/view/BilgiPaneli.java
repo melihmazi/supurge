@@ -33,14 +33,14 @@ public class BilgiPaneli extends VBox {
         setStyle("-fx-background-color: #1e2235;");
 
         getChildren().addAll(
-            bolumBasligi("🤖 Robot Durumu"),
+            bolumBasligi("Robot Durumu"),
             ayrac(),
             satirOlustur("Durum",        robotDurumDeger = durumEtiketi("Bekliyor")),
             satirOlustur("Konum (x, y)", konumDeger    = degerEtiketi("(0, 0)")),
             satirOlustur("Yön",          yonDeger      = degerEtiketi("Doğu →")),
             bataryaBolumu(),
             ayrac(),
-            bolumBasligi("📊 İstatistikler"),
+            bolumBasligi("İstatistikler"),
             ayrac(),
             satirOlustur("Temizlenen",   temizlenenDeger = degerEtiketi("0%")),
             satirOlustur("Kalan Kir",    kalanDeger      = degerEtiketi("0")),
@@ -57,16 +57,16 @@ public class BilgiPaneli extends VBox {
 
         // Robot durum etiketi
         if (durum.isTamamlandi()) {
-            robotDurumDeger.setText("✅ Tamamlandı");
+            robotDurumDeger.setText("Tamamlandı");
             robotDurumDeger.setTextFill(Color.rgb(46, 204, 113));
         } else if (durum.isSarjaDonuyorMu()) {
-            robotDurumDeger.setText("🔋 Şarj Dönüşü");
+            robotDurumDeger.setText("Şarj Dönüşü");
             robotDurumDeger.setTextFill(Color.rgb(230, 126, 34));
         } else if (durum.isCalisiyor()) {
             robotDurumDeger.setText("▶ Çalışıyor");
             robotDurumDeger.setTextFill(Color.rgb(46, 204, 113));
         } else {
-            robotDurumDeger.setText("⏸ Bekliyor");
+            robotDurumDeger.setText("Bekliyor");
             robotDurumDeger.setTextFill(Color.rgb(140, 150, 170));
         }
 
