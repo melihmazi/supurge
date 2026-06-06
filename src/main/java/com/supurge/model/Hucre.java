@@ -1,18 +1,17 @@
 package com.supurge.model;
 
-/**
- * Odanın grid yapısındaki her bir hücreyi temsil eder.
- */
+/*odanın grid yapısındakı hucreler*/
+
 public class Hucre {
 
     private int x;
     private int y;
     private boolean engel;          // mobilya/duvar var mı
-    private boolean temizlendi;     // kirli hücre temizlendi mi (kir vardı ve silindi)
+    private boolean temizlendi;     // kirli hücre temizlendi mi
     private boolean ziyaretEdildi;  // robot bu hücreden geçti mi
     private KirTuru kirTuru;        // kir türü (null ise temiz)
     private boolean sarjIstasyonu;  // şarj istasyonu mu
-    private int mobilyaTuru;        // mobilya türü (0-5)
+    private int mobilyaTuru;        // mobilya türü
 
     public Hucre(int x, int y) {
         this.x = x;
@@ -29,7 +28,6 @@ public class Hucre {
         return kirTuru != null;
     }
 
-    // Getters & Setters
     public int getX() { return x; }
     public int getY() { return y; }
 
@@ -42,7 +40,7 @@ public class Hucre {
     public boolean isZiyaretEdildi() { return ziyaretEdildi; }
     public void setZiyaretEdildi(boolean ziyaretEdildi) { this.ziyaretEdildi = ziyaretEdildi; }
 
-    /** Hücre işlendi mi? Kirli hücre temizlendiyse veya kirli değilse ziyaret edildi. */
+    /* hücre işlendi mi? ziyaret edildi mi, temizlendi mi? */
     public boolean isIslendi() { return temizlendi || (ziyaretEdildi && kirTuru == null); }
 
     public KirTuru getKirTuru() { return kirTuru; }

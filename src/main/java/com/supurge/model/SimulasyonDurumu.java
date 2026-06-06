@@ -1,9 +1,8 @@
 package com.supurge.model;
 
-/**
- * Simülasyonun anlık durumunu tutan model sınıfı.
- * Controller ile View arasında veri taşır.
- * View yalnızca bu sınıfı okur — model nesnelerine doğrudan erişmez.
+/* simülasyonun anlık durumunu tutar
+controller ile View arasında veri taşır
+view yalnızca bu sınıfı okur, model nesnelerine doğrudan erişmez
  */
 public class SimulasyonDurumu {
 
@@ -17,8 +16,8 @@ public class SimulasyonDurumu {
     private long gecenSure;
     private int toplamTemizlenenKir;
     private double robotHiz;          // AnaEkran'ın hız hesabı için
-    private boolean sarjaDonuyorMu;   // UI'da uyarı göstermek için
-    private String bataryaDurumu;     // "İYİ" / "ORTA" / "DÜŞÜK" / "KRİTİK"
+    private boolean sarjaDonuyorMu;   //uyarı göstermek için
+    private String bataryaDurumu;     //iyi, orta, düşük, kritik
     private boolean calisiyor;        // robot çalışıyor mu
     private boolean tamamlandi;       // tüm alan temizlendi mi
 
@@ -29,7 +28,7 @@ public class SimulasyonDurumu {
         return (temizlenenHucre * 100.0) / toplamHucre;
     }
 
-    // Getters & Setters
+
     public int getRobotX() { return robotX; }
     public void setRobotX(int robotX) { this.robotX = robotX; }
 

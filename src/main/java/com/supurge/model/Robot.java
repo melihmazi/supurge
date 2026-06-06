@@ -3,9 +3,7 @@ package com.supurge.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Robot süpürgeyi temsil eden model sınıfı.
- */
+/* süpürge sınıfı temsil eden */
 public class Robot {
 
     private int x;
@@ -13,7 +11,7 @@ public class Robot {
     private double batarya;
     private static final double MAX_BATARYA = 100.0;
     private Yon yon;
-    private double hiz;                             // hareket hızı (çarpan)
+    private double hiz;                             // hareket hızı
     private TemizlemeAlgoritması algoritma;
     private boolean calisiyor;
     private List<int[]> hareketYolu;                // geçilen hücrelerin koordinatları
@@ -37,9 +35,8 @@ public class Robot {
         batarya = MAX_BATARYA;
     }
 
-    /**
-     * Robotu belirtilen konuma taşır.
-     * Batarya tüketimi BataryaKontrolcu tarafından yönetilir.
+    /* robotu belirtilen konuma taşır.
+      batarya tüketimi BataryaKontrolcu tarafından yönetilir.
      */
     public void hareketEt(int yeniX, int yeniY) {
         this.x = yeniX;
@@ -51,7 +48,6 @@ public class Robot {
         return (batarya / MAX_BATARYA) * 100;
     }
 
-    // Getters & Setters
     public int getX() { return x; }
     public void setX(int x) { this.x = x; }
 

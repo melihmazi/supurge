@@ -1,10 +1,9 @@
 package com.supurge.model;
 
-/**
- * Temizleme algoritmalarını tanımlayan enum.
- */
+/*temizleme algoritmalarını tanımlama */
+
 public enum TemizlemeAlgoritması {
-    RASTGELE,    // Rastgele hareket
-    SPIRAL,      // Spiral hareket
-    DUVAR_TAKIP  // Duvar takip
+    RASTGELE,
+    SPIRAL,
+    DUVAR_TAKIP
 }

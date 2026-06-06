@@ -1,8 +1,7 @@
 package com.supurge.model;
 
-/**
- * Robotun hareket yönlerini tanımlayan enum.
- */
+/* robotun hareket yönleri tanımlanır */
+
 public enum Yon {
     KUZEY(0, -1),
     GUNEY(0, 1),

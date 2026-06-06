@@ -3,9 +3,8 @@ package com.supurge.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Odanın grid yapısını temsil eden model sınıfı.
- */
+/* odanın grid yapısını temsil eder. */
+
 public class Oda {
 
     private int genislik;
@@ -19,7 +18,8 @@ public class Oda {
         this.yukseklik = yukseklik;
         this.grid = new Hucre[yukseklik][genislik];
         gridOlustur();
-        // Şarj istasyonu varsayılan olarak sol üst köşe
+
+        //şarj istasyonu, sol üst köşe
         this.sarjIstasyonuX = 0;
         this.sarjIstasyonuY = 0;
         grid[0][0].setSarjIstasyonu(true);
