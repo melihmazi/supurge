@@ -107,7 +107,7 @@ public class AnaEkran {
             }
         }.start();
 
-        // ScrollPane (Kaydırma Çubuğu) Ayarları
+        // ScrollPane (kaydırma çubuğu)
         ScrollPane scrollPane = new ScrollPane(kokDuzen);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
@@ -126,17 +126,13 @@ public class AnaEkran {
         bar.setPadding(new Insets(10, 20, 10, 20));
         bar.setStyle("-fx-background-color: #12152a;");
 
-        Label ikon   = new Label("🤖");
-        ikon.setFont(Font.font(24));
 
         Label baslik = new Label("Robot Süpürge Simülasyonu");
         baslik.setFont(Font.font("Arial", FontWeight.BOLD, 20));
         baslik.setTextFill(Color.WHITE);
 
-        Label yildiz = new Label("✨");
-        yildiz.setFont(Font.font(18));
 
-        bar.getChildren().addAll(ikon, baslik, yildiz);
+        bar.getChildren().addAll(baslik);
         return bar;
     }
 
@@ -149,6 +145,7 @@ public class AnaEkran {
         if (bar.getChildren().size() < 4) {
             bar.getChildren().add(tamamlandi);
         }
+        //ulaşılamayan alanda kir
         if (kontrolcu.getDurum().getKalanKirliHucre() > 0) {
             Label ulasilamayanKir = new Label("Ulaşılamayan Alanda Kir Kaldı!");
             ulasilamayanKir.setFont(Font.font("Arial", FontWeight.BOLD, 14));
