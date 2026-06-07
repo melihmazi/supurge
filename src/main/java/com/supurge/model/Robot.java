@@ -16,7 +16,7 @@ public class Robot {
     private boolean calisiyor;
     private List<int[]> hareketYolu;                // geçilen hücrelerin koordinatları
 
-    public Robot(int baslangicX, int baslangicY) {
+    public Robot(int baslangicX, int baslangicY) { //default degerleri
         this.x = baslangicX;
         this.y = baslangicY;
         this.batarya = MAX_BATARYA;

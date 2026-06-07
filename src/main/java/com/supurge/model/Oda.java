@@ -55,10 +55,11 @@ public class Oda {
     }
 
     public void kirEkle(int x, int y, KirTuru kirTuru) {
-        if (gecerliMi(x, y) && !grid[y][x].isEngel()) {
+        if (gecerliMi(x, y) && !grid[y][x].isEngel()) { //kir eklemek için geçerli ve mobilyasız olmalı
             grid[y][x].setKirTuru(kirTuru);
             grid[y][x].setTemizlendi(false);
             grid[y][x].setZiyaretEdildi(false); // kir eklenen hücre tekrar ziyaret edilmeli
+            //temizlenme ziyarte edilme sıfırlanır (false)
         }
     }
 
@@ -66,11 +67,11 @@ public class Oda {
         int sayac = 0;
         for (int y = 0; y < yukseklik; y++)
             for (int x = 0; x < genislik; x++)
-                if (!grid[y][x].isEngel()) sayac++;
+                if (!grid[y][x].isEngel()) sayac++; //mobilya varsa saymaz
         return sayac;
     }
 
-    public int temizlenenHucreSayisi() {
+    public int temizlenenHucreSayisi() { //ziyaret edilen + temizlenen alanı sayar
         int sayac = 0;
         for (int y = 0; y < yukseklik; y++)
             for (int x = 0; x < genislik; x++)
@@ -91,7 +92,6 @@ public class Oda {
         grid[sarjIstasyonuY][sarjIstasyonuX].setSarjIstasyonu(true);
     }
 
-    // Getters
     public int getGenislik() { return genislik; }
     public int getYukseklik() { return yukseklik; }
     public Hucre[][] getGrid() { return grid; }
