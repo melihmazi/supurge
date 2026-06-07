@@ -1,6 +1,7 @@
 # Robot Süpürge Simülasyonu
 
-BZ 214 Görsel Programlama dersi projesi olarak geliştirilmiştir.
+BZ 214 Görsel Programlama dersi projesi olarak geliştirilmiştir. Ders eğitmenine ve katkıda bulunanlara
+özel teşekkürler.
 Projede Java kullanılmış olup, arayüz tasarımı için JavaFX tercih edilmiştir. 
 Kodlar okunabilirliği artırmak amacıyla MVC mantığına göre üç ana parçaya (Model, View, Controller) ayrılmıştır.
 
