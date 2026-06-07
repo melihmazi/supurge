@@ -37,15 +37,15 @@ public class IstatistikBari extends HBox {
         toplamKirDeger     = degerEtiketi("0");
 
         getChildren().addAll(
-            istatistikKutusu("●", "#4a9eff", "Toplam Alan",    toplamAlanDeger),
+            istatistikKutusu("", "#4a9eff", "Toplam Alan",    toplamAlanDeger),
             ayirici(),
-            istatistikKutusu("●", "#2ecc71", "Temizlenen Alan", temizlenenAlanDeger),
+            istatistikKutusu("", "#2ecc71", "Temizlenen Alan", temizlenenAlanDeger),
             ayirici(),
-            istatistikKutusu("●", "#95a5a6", "Kalan Alan",     kalanAlanDeger),
+            istatistikKutusu("", "#95a5a6", "Kalan Alan",     kalanAlanDeger),
             ayirici(),
-            istatistikKutusu("🕐", null,     "Geçen Süre",     gecenSureDeger),
+            istatistikKutusu("", null,     "Geçen Süre",     gecenSureDeger),
             ayirici(),
-            istatistikKutusu("🧹", null,     "Toplanan Toz",   toplamKirDeger)
+            istatistikKutusu("", null,     "Toplanan Toz",   toplamKirDeger)
         );
     }
 
